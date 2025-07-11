@@ -87,14 +87,14 @@ const TutorialPage = () => {
         </header>
 
         {/* Tutorial Content */}
-        <div className="tutorial-content max-w-none">
+        <div className="tutorial-content">
           {tutorial.content.sections.map((section, index) => (
             <section key={section.id} className="mb-12">
               <h2 id={section.id} className="text-2xl md:text-3xl font-bold mb-6 scroll-mt-20">
                 {section.title}
               </h2>
               
-              <div className="prose-lg leading-relaxed mb-6">
+              <div className="leading-relaxed mb-6">
                 {section.content.split('\n\n').map((paragraph, pIndex) => {
                   if (paragraph.trim().startsWith('•')) {
                     // Handle bullet points
