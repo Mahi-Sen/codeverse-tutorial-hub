@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, Code, BookOpen, Search, Menu, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Code, BookOpen, Search, X } from 'lucide-react';
 import { categories, getTutorialsByCategory, getTutorialsBySubcategory } from '../data/tutorials';
 
 interface SidebarProps {
@@ -10,16 +10,23 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const location = useLocation();
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['html']);
   const [expandedSubcategories, setExpandedSubcategories] = useState<string[]>(['basics']);
 
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+  // Get current category from URL
+  const getCurrentCategory = () => {
+    const pathParts = location.pathname.split('/');
+    if (pathParts[1] === 'tutorials' && pathParts[2]) {
+      return pathParts[2]; // e.g., 'html' from '/tutorials/html/introduction'
+    }
+    return null;
   };
+
+  const currentCategory = getCurrentCategory();
+  
+  // Filter categories to show only the current one
+  const visibleCategories = currentCategory 
+    ? categories.filter(cat => cat.id === currentCategory)
+    : categories;
 
   const toggleSubcategory = (subcategoryId: string) => {
     setExpandedSubcategories(prev =>
@@ -104,102 +111,89 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               <span>All Tutorials</span>
             </Link>
 
-            {/* Categories */}
-            {categories.map(category => {
-              const isExpanded = expandedCategories.includes(category.id);
+            {/* Categories - only show current category or all if on tutorials page */}
+            {visibleCategories.map(category => {
               const categoryTutorials = getTutorialsByCategory(category.id);
 
               return (
                 <div key={category.id} className="space-y-1">
                   {/* Category header */}
-                  <button
-                    onClick={() => toggleCategory(category.id)}
-                    className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-[hsl(var(--sidebar-accent))] transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-[hsl(var(--primary))] rounded flex items-center justify-center">
-                        <span className="text-xs font-bold text-[hsl(var(--primary-foreground))]">
-                          {category.title.charAt(0)}
-                        </span>
-                      </div>
-                      <span className="font-medium text-[hsl(var(--sidebar-foreground))]">
-                        {category.title}
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-[hsl(var(--primary))] bg-opacity-10">
+                    <div className="w-6 h-6 bg-[hsl(var(--primary))] rounded flex items-center justify-center">
+                      <span className="text-xs font-bold text-[hsl(var(--primary-foreground))]">
+                        {category.title.charAt(0)}
                       </span>
                     </div>
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-                    )}
-                  </button>
+                    <span className="font-medium text-[hsl(var(--sidebar-foreground))]">
+                      {category.title} Tutorials
+                    </span>
+                  </div>
 
                   {/* Category content */}
-                  {isExpanded && (
-                    <div className="ml-4 space-y-1">
-                      {category.subcategories ? (
-                        // If has subcategories, show them
-                        category.subcategories.map(subcategory => {
-                          const isSubExpanded = expandedSubcategories.includes(subcategory.id);
-                          const subcategoryTutorials = getTutorialsBySubcategory(category.id, subcategory.id);
+                  <div className="ml-2 space-y-1">
+                    {category.subcategories ? (
+                      // If has subcategories, show them
+                      category.subcategories.map(subcategory => {
+                        const isSubExpanded = expandedSubcategories.includes(subcategory.id);
+                        const subcategoryTutorials = getTutorialsBySubcategory(category.id, subcategory.id);
 
-                          return (
-                            <div key={subcategory.id} className="space-y-1">
-                              {/* Subcategory header */}
-                              <button
-                                onClick={() => toggleSubcategory(subcategory.id)}
-                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-[hsl(var(--sidebar-accent))] transition-colors text-left text-sm"
-                              >
-                                <span className="text-[hsl(var(--sidebar-foreground))]">
-                                  {subcategory.title}
-                                </span>
-                                {isSubExpanded ? (
-                                  <ChevronDown className="w-3 h-3 text-[hsl(var(--muted-foreground))]" />
-                                ) : (
-                                  <ChevronRight className="w-3 h-3 text-[hsl(var(--muted-foreground))]" />
-                                )}
-                              </button>
-
-                              {/* Subcategory tutorials */}
-                              {isSubExpanded && (
-                                <div className="ml-4 space-y-1">
-                                  {subcategoryTutorials.map(tutorial => (
-                                    <Link
-                                      key={tutorial.id}
-                                      to={tutorial.slug}
-                                      className={`block p-2 rounded-lg text-sm transition-colors ${
-                                        isActiveLink(tutorial.slug)
-                                          ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                                          : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'
-                                      }`}
-                                      onClick={onToggle}
-                                    >
-                                      {tutorial.title}
-                                    </Link>
-                                  ))}
-                                </div>
+                        return (
+                          <div key={subcategory.id} className="space-y-1">
+                            {/* Subcategory header */}
+                            <button
+                              onClick={() => toggleSubcategory(subcategory.id)}
+                              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-[hsl(var(--sidebar-accent))] transition-colors text-left text-sm"
+                            >
+                              <span className="text-[hsl(var(--sidebar-foreground))] font-medium">
+                                {subcategory.title}
+                              </span>
+                              {isSubExpanded ? (
+                                <ChevronDown className="w-3 h-3 text-[hsl(var(--muted-foreground))]" />
+                              ) : (
+                                <ChevronRight className="w-3 h-3 text-[hsl(var(--muted-foreground))]" />
                               )}
-                            </div>
-                          );
-                        })
-                      ) : (
-                        // If no subcategories, show tutorials directly
-                        categoryTutorials.map(tutorial => (
-                          <Link
-                            key={tutorial.id}
-                            to={tutorial.slug}
-                            className={`block p-2 rounded-lg text-sm transition-colors ${
-                              isActiveLink(tutorial.slug)
-                                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'
-                            }`}
-                            onClick={onToggle}
-                          >
-                            {tutorial.title}
-                          </Link>
-                        ))
-                      )}
-                    </div>
-                  )}
+                            </button>
+
+                            {/* Subcategory tutorials */}
+                            {isSubExpanded && (
+                              <div className="ml-4 space-y-1">
+                                {subcategoryTutorials.map(tutorial => (
+                                  <Link
+                                    key={tutorial.id}
+                                    to={tutorial.slug}
+                                    className={`block p-2 rounded-lg text-sm transition-colors ${
+                                      isActiveLink(tutorial.slug)
+                                        ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                                        : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'
+                                    }`}
+                                    onClick={onToggle}
+                                  >
+                                    {tutorial.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      // If no subcategories, show tutorials directly
+                      categoryTutorials.map(tutorial => (
+                        <Link
+                          key={tutorial.id}
+                          to={tutorial.slug}
+                          className={`block p-2 rounded-lg text-sm transition-colors ${
+                            isActiveLink(tutorial.slug)
+                              ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                              : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'
+                          }`}
+                          onClick={onToggle}
+                        >
+                          {tutorial.title}
+                        </Link>
+                      ))
+                    )}
+                  </div>
                 </div>
               );
             })}
