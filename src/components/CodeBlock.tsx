@@ -5,38 +5,6 @@ import Prism from 'prismjs';
 // Import Prism.js CSS
 import 'prismjs/themes/prism-tomorrow.css';
 
-// Import language support
-import 'prismjs/components/prism-markup';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-php';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-scss';
-import 'prismjs/components/prism-sass';
-import 'prismjs/components/prism-less';
-import 'prismjs/components/prism-stylus';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-swift';
-import 'prismjs/components/prism-kotlin';
-import 'prismjs/components/prism-dart';
-import 'prismjs/components/prism-docker';
-import 'prismjs/components/prism-nginx';
-import 'prismjs/components/prism-apache';
-
 interface CodeBlockProps {
   code: string;
   language: string;
@@ -47,7 +15,23 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, title }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    Prism.highlightAll();
+    const loadLanguage = async () => {
+      const prismLanguage = getLanguageClass(language);
+      // Load core languages that are not dynamically imported
+      await Promise.all([
+        import('prismjs/components/prism-markup'),
+        import('prismjs/components/prism-css'),
+        import('prismjs/components/prism-javascript'),
+      ]);
+      try {
+        await import(`prismjs/components/prism-${prismLanguage}`);
+      } catch (e) {
+        // Language component not found, default to plain text or handle as needed
+        console.warn(`Prism.js language component for "${language}" not found. Falling back to default highlighting.`, e);
+      }
+      Prism.highlightAll();
+    };
+    loadLanguage();
   }, [code, language]);
 
   const copyToClipboard = async () => {
