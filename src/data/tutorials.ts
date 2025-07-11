@@ -68,7 +68,33 @@ export const categories: Category[] = [
         description: 'Writing meaningful, accessible HTML'
       }
     ]
-  }
+  },
+
+// =============================================================================================
+  {
+    id: 'javascript', // URL-friendly identifier
+    title: 'JavaScript', // Display name
+    description: 'Learn client-side and server-side JavaScript',
+    icon: 'Code', // Lucide icon name (you can choose a different one)
+    subcategories: [
+      {
+        id: 'basics',
+        title: 'JavaScript Basics',
+        description: 'Fundamental JavaScript concepts'
+      },
+      {
+        id: 'asynchronous',
+        title: 'Asynchronous JavaScript',
+        description: 'Working with async operations, Promises, and more'
+      },
+      {
+        id: 'dom-manipulation',
+        title: 'DOM Manipulation',
+        description: 'Interacting with the Document Object Model'
+      }
+      // ... other JavaScript subcategories
+    ]
+  },
 ];
 
 // HTML Tutorial content
@@ -678,7 +704,117 @@ This behavior can be changed with CSS, but understanding the default behavior is
         }
       ]
     }
-  }
+  },
+
+
+  // ================================================================================================
+  {
+    id: 'js-ajax', // Unique identifier
+    title: 'Introduction to AJAX',
+    description: 'Learn how to make asynchronous requests with JavaScript',
+    slug: '/tutorials/javascript/ajax', // URL path
+    category: 'javascript', // Must match category id
+    subcategory: 'asynchronous', // Must match subcategory id
+    order: 10, // Position in sequence (choose an appropriate number)
+    content: {
+      sections: [
+        {
+          id: 'what-is-ajax',
+          title: 'What is AJAX?',
+          content: `AJAX stands for Asynchronous JavaScript and XML. It's a technique used to create asynchronous web applications.
+          
+Using AJAX, web applications can send and retrieve data from a server asynchronously in the background without interfering with the display and behavior of the existing page.`,
+        },
+        {
+          id: 'how-it-works',
+          title: 'How AJAX Works (Basic Idea)',
+          content: `Instead of a full page reload, the browser uses the \`XMLHttpRequest\` object (or the newer \`fetch\` API) to send and receive data from a server.
+          
+When the data is received, JavaScript is used to update parts of the current web page dynamically.`,
+          codeExample: {
+            language: 'javascript',
+            title: 'Basic Fetch API Example',
+            code: `fetch('https://api.example.com/data')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // Process your data here
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+  });`
+          }
+        },
+        // Add more sections on XMLHttpRequest, Promises, async/await with fetch, handling different data types, etc.
+      ]
+    }
+  },
+
+  // Modals Tutorial
+  {
+    id: 'js-modals', // Unique identifier
+    title: 'Working with Modals',
+    description: 'Create interactive modal dialogs using JavaScript',
+    slug: '/tutorials/javascript/modals', // URL path
+    category: 'javascript', // Must match category id
+    subcategory: 'dom-manipulation', // Must match subcategory id
+    order: 20, // Position in sequence (choose an appropriate number, greater than the AJAX tutorial if sequential)
+    content: {
+      sections: [
+        {
+          id: 'what-are-modals',
+          title: 'What are Modals?',
+          content: `Modal dialogs (or simply "modals") are windows that appear on top of the current page content, often with a dimmed background overlay.
+          
+They are used to grab the user's attention and require interaction before the user can return to the main content.`,
+        },
+        {
+          id: 'basic-modal-structure',
+          title: 'HTML Structure',
+          content: `A typical modal involves a container for the overlay and the modal content itself.
+          
+\`\`\`html
+<div id="modal-overlay" style="display: none;"></div>
+<div id="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Modal Title</h2>
+    <p>This is the content of the modal.</p>
+    <button id="close-modal">Close</button>
+  </div>
+</div>
+\`\`\`
+`, // Using triple backticks for a larger HTML block
+        },
+        {
+          id: 'opening-closing-modal',
+          title: 'Opening and Closing with JavaScript',
+          content: `We can use JavaScript to change the display style of the modal and overlay elements to show or hide them.`,
+          codeExample: {
+            language: 'javascript',
+            title: 'Show/Hide Modal Functions',
+            code: `const modalOverlay = document.getElementById('modal-overlay');
+const modal = document.getElementById('modal');
+const closeModalBtn = document.getElementById('close-modal');
+
+function openModal() {
+  modalOverlay.style.display = 'block';
+  modal.style.display = 'block';
+}
+
+function closeModal() {
+  modalOverlay.style.display = 'none';
+  modal.style.display = 'none';
+}
+
+// Example usage:
+// document.getElementById('open-modal-button').addEventListener('click', openModal);
+closeModalBtn.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', closeModal); // Close if clicking outside modal`
+          }
+        },
+        // Add more sections on styling modals with CSS, accessibility considerations, using libraries, etc.
+      ]
+    }
+  },
 ];
 
 // Helper functions
